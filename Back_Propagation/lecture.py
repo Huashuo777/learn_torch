@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 x_data = [1.0,2.0,3.0]
 y_data = [2.0,4.0,6.0]
 
-w1 = torch.Tensor([1.0])
-w2 = torch.Tensor([2.0])
+w1 = torch.Tensor([0.5])
+w2 = torch.Tensor([1.0])
 b = torch.Tensor([1.0]) 
 w1.requires_grad = True
 w2.requires_grad = True
 b.requires_grad = True
-lr = 0.1 
+lr = 0.01
 
 def forward(x):
     return x**2 * w1 + x * w2 + b

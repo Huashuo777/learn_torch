@@ -1,16 +1,12 @@
 import torch
-import numpy as np
 import matplotlib.pyplot as plt
 
 x_data = [1.0,2.0,3.0]
 y_data = [2.0,4.0,6.0]
 
-w1 = torch.Tensor([0.5])
-w2 = torch.Tensor([1.0])
-b = torch.Tensor([1.0]) 
-w1.requires_grad = True
-w2.requires_grad = True
-b.requires_grad = True
+w1 = torch.tensor([0.5], requires_grad=True)
+w2 = torch.tensor([1.0], requires_grad=True)
+b = torch.tensor([1.0], requires_grad=True)
 lr = 0.01
 
 def forward(x):
@@ -27,9 +23,12 @@ for epoch in range(100):
         l = loss(x_data[i], y_data[i])
         l.backward()
         print('\tgrad:', x_data[i], y_data[i], w1.grad.item(),w2.grad.item(),b.grad.item())
-        w1.data = w1.data - w1.grad.data * lr
-        w2.data = w2.data - w2.grad.data * lr
-        b.data = b.data - b.grad.data * lr
+        with torch.no_grad():
+            w1 -= lr * w1.grad
+        with torch.no_grad():
+            w2 -= lr * w2.grad
+        with torch.no_grad():
+            b -= lr * b.grad
 
         w1.grad.data.zero_()
         w2.grad.data.zero_()

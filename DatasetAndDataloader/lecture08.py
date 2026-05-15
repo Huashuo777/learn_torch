@@ -43,15 +43,17 @@ optimizer = torch.optim.SGD(model.parameters(), lr = 0.1)
 
 if __name__ == '__main__':
     for epoch in range(100):
+        running_loss = 0
         for i, data in enumerate(train_loader,0):
             inputs,labels = data
 
             y_pred = model(inputs)
             loss = criterion(y_pred, labels)
-            print(epoch, i, loss.item())
+            running_loss += loss.item()
             
             optimizer.zero_grad()
             loss.backward()
 
             optimizer.step()
+        print(epoch, running_loss/len(train_loader))
 

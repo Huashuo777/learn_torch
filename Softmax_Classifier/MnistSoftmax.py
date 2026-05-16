@@ -8,7 +8,7 @@ import torch.optim as optim
 batch_size = 64
 transform = transforms.Compose([
     transforms.ToTensor(),
-    transforms.Normalize((0.1307,),(0.3081,))#标准化，传入通道个数元素个的元组，前者均值后者标准差
+    transforms.Normalize((0.1307,),(0.3081,))#标准化，参数是传入通道个数元素个的元组，进行每个通道的标准化。前者均值后者标准差
 ])
 
 train_dataset = datasets.MNIST(root = '/dataset/mnist/',
@@ -34,9 +34,9 @@ class Net(torch.nn.Module):
         self.l3 = torch.nn.Linear(256,128)
         self.l4 = torch.nn.Linear(128,64)
         self.l5 = torch.nn.Linear(64,10)
-        self.activation = F.relu #此处不要调用函数，而只是定义函数，或者使用torch.nn.Relu()这是一个层(模块)
+        self.activation = F.relu #此处不要调用函数，而只是定义函数，或者使用torch.nn.Relu()这是一个层(模块)，根据类创建对象
     def forward(self,x):
-        x = x.view(-1,784)
+        x = x.view(-1,784) #先把数据flatten展开再做计算
         x = self.activation(self.l1(x))
         x = self.activation(self.l2(x))
         x = self.activation(self.l3(x))
@@ -46,24 +46,26 @@ class Net(torch.nn.Module):
     
 model = Net()
 
-criterion = torch.nn.CrossEntropyLoss()
+criterion = torch.nn.CrossEntropyLoss(reduction='mean')#注意此处的配置
 optimizer = optim.SGD(model.parameters(), lr = 0.01, momentum=0.5)
 
 def train(epoch):
     running_loss = 0
+    total_num = 0
     for batch_idx, data in enumerate(train_loader, 0):
         inputs, target = data
         optimizer.zero_grad()
 
         outputs = model(inputs)
-        loss = criterion(outputs, target)
+        loss = criterion(outputs, target) #criterion已经做了mean或者sum，根据自己配置
         loss.backward()
         optimizer.step()
 
-        running_loss += loss.item()
-        if batch_idx % 300 == 299:
-            print('[%d, %5d] loss : %.3f' % (epoch+1, batch_idx+1, running_loss / 300))
-            running_loss = 0
+        running_loss += loss.item() #由上可知是单个量
+        total_num += inputs.size(0)
+    print('epoch[%d] loss : %.3f' % (epoch+1, running_loss / total_num))
+    running_loss = 0
+    total_num = 0
 
 def test():
     correct = 0
